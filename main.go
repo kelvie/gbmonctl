@@ -18,10 +18,13 @@ func checksum(msg []byte) byte {
 }
 
 func main() {
-	prop := flag.Int("p", 0x10, "Property to set, 16 is brightness, 18 is contrast, 135 is sharpness")
-	val :=  flag.Int("v", 50, "Value to set it to (0-100 for brightness and contrast, 1-10 for sharpness)")
-	dryrun := flag.Bool("n", false, "Dry run: test commands and print instead")
+	prop := flag.Int("p", 0x10, "Property to set, 0x10 is brightness (0-100), 0x12 is contrast(0-100), 0x87 is sharpness 1-10.")
+	secondary := flag.Bool("s", false, "Use secondary command structure, properties are now: 0x0b for low blue light (0-10), 0x69 for KVM switching (0-1)")
+	val :=  flag.Int("v", 50, "Value to set proeprty to")
 
+
+	dryrun := flag.Bool("n", false, "Dry run: test commands and print instead")
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	flag.Parse()
 
 	// Buf is actually 192 bytes, but we need one for the report id
@@ -31,12 +34,18 @@ func main() {
 	copy(buf[1:], []byte{0x40, 0xc6})
 	copy(buf[1+6:], []byte{0x20, 0, 0x6e, 0, 0x80})
 
+
+	var preamble []byte
+
+	if *secondary {
+		preamble = []byte{0x51, 0x85, 0x03, 0xe0}
+	} else {
+		preamble = []byte{0x51, 0x84, 0x03}
+	}
+
 	msg := []byte{byte(*prop), 0, byte(*val)}
-	copy(buf[1+0x40:], []byte{0x51, 0x84, 0x03})
 
-	msg = append(msg, checksum(msg))
-
-	copy(buf[1+0x43:], msg)
+	copy(buf[1+0x40:], append(preamble, msg...))
 
 	if *dryrun {
 		log.Println("Would have sent:\n" + hex.Dump(buf))
