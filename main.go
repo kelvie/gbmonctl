@@ -18,7 +18,7 @@ func checksum(msg []byte) byte {
 }
 
 func main() {
-	prop := flag.Int("p", 0x10, "Property to set, 16 is brightness, 18 is contrast, 137 is sharpness")
+	prop := flag.Int("p", 0x10, "Property to set, 16 is brightness, 18 is contrast, 135 is sharpness")
 	val :=  flag.Int("v", 50, "Value to set it to (0-100 for brightness and contrast, 1-10 for sharpness)")
 	dryrun := flag.Bool("n", false, "Dry run: test commands and print instead")
 
