@@ -73,21 +73,21 @@ func main() {
 			Name:        "rgb-red",
 			Description: "Red value -- only works if colour-mode is set to 3",
 			Min:         0,
-			Max:         0xff,
+			Max:         100,
 			Value:       0xe004,
 		},
 		{
 			Name:        "rgb-green",
 			Description: "Green value -- only works if colour-mode is set to 3",
 			Min:         0,
-			Max:         0xff,
+			Max:         100,
 			Value:       0xe005,
 		},
 		{
 			Name:        "rgb-blue",
 			Description: "Blue value -- only works if colour-mode is set to 3",
 			Min:         0,
-			Max:         0xff,
+			Max:         100,
 			Value:       0xe006,
 		},
 	}
@@ -184,6 +184,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// TODO: get current value and nicely transition to the expected value like in
 	// TODO: read a value if "v" not specified, I think the value is in the byte
 	// 0xa of the response if we do a read
 	_, err = dev.Write(buf)
