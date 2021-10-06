@@ -62,16 +62,17 @@ Usage of gbmonctl:
                         Switch KVM to device 0 or 1
                 colour-mode (0-3)
                         0 is cool, 1 is normal, 2 is warm, 3 is user-defined.
-                rgb-red (0-255)
+                rgb-red (0-100)
                         Red value -- only works if colour-mode is set to 3
-                rgb-green (0-255)
+                rgb-green (0-100)
                         Green value -- only works if colour-mode is set to 3
-                rgb-blue (0-255)
+                rgb-blue (0-100)
                         Blue value -- only works if colour-mode is set to 3
   -propNum uint
         Property number to set instead of -prop
   -val int
         Value to set property to (default -1)
+
 #+end_example
 
 Examples:
