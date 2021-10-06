@@ -73,6 +73,11 @@ When using propNum, I don't recommend using values that are out of the ranges
 listed, and this program doesn't check, so I'm not liable for monitor damage
 that occurs from this.
 
-* TODO
+* Other notes
+~fwupd~ seems to delete the hidraw device that this uses, so you will have to
+disable fwupd and re-plug in your monitor (hit the KVM switch on the side), see
+https://github.com/kelvie/gbmonctl/issues/1
+
+* TO-DO
 - Get the rest of the commands
 - Make more user friendly
