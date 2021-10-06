@@ -7,14 +7,14 @@ A CLI tool to change monitor settings over USB to the Gigabyte M32U
 * Supported monitors
 - Gigabyte M32U
 
-
-In theory any Gigabyte Monitor that uses a Realtek HID device to control it over
-OSD sidekick *should* have the same protocol, but this is the only one I own
-
+In theory any Gigabyte Monitor that uses a Realtek HID device (presumably the
+M28U also uses this) to control it over OSD sidekick *should* have the same
+protocol, but this is the only one I own.
 
 * To install:
 
-You'll need libhidapi and libudev -- on Debians that's ~apt install libhidapi-dev libudev-dev~
+You'll need libhidapi and libudev -- on Debians that's ~apt install
+libhidapi-dev libudev-dev~, and on darwin you can use ~brew install hidapi~
 
 #+begin_src sh
 go install github.com/kelvie/gbmonctl@latest
@@ -23,36 +23,56 @@ go install github.com/kelvie/gbmonctl@latest
 * To use:
 
 #+begin_example
-~ ~/go/bin/gbmonctl -h                                                                                                                    0 [20:42:49]
-Usage of /home/kelvie/go/bin/gbmonctl:
+~ ~/go/bin/gbmonctl
+ERROR: -prop or -propNum is required
+
+Usage of gbmonctl:
   -n    Dry run: test commands and print instead
-  -p int
-        Property to set, 16 is brightness, 18 is contrast, 137 is sharpness (default 16)
-  -v int
-        Value to set it to (0-100 for brightness and contrast, 1-10 for sharpness) (default 50)
+  -prop string
+        Property to set. Available properties:
+                brightness (0-100)
+                contrast (0-100)
+                sharpness (0-10)
+                low-blue-light (0-10)
+                        Blue light reduction. 0 means no reduction.
+                kvm-switch (0-1)
+                        Switch KVM to device 0 or 1
+                colour-mode (0-3)
+                        0 is cool, 1 is normal, 2 is warm, 3 is user-defined.
+                rgb-red (0-255)
+                        Red value -- only works if colour-mode is set to 3
+                rgb-green (0-255)
+                        Green value -- only works if colour-mode is set to 3
+                rgb-blue (0-255)
+                        Blue value -- only works if colour-mode is set to 3
+  -propNum uint
+        Property number to set instead of -prop
+  -val int
+        Value to set property to (default -1)
 #+end_example
 
 Examples:
 #+begin_src sh
 # Set brightness to 50
-gbmonctl -p 16 -v 50
+gbmonctl -prop brightness -val 50
 
 # Set contrast to 50
-gbmonctl -p 18 -v 50
+gbmonctl -prop contrast -v 50
 
 # Set sharpness to 5
-gbmonctl -p 137 -v 5
+gbmonctl -prop sharpness -v 5
+
+# Set colour temperature to 2700K for nighttime
+gbmonctl -prop colour-mode -val 3
+gbmonctl -prop rgb-red -val 100
+gbmonctl -prop rgb-green -val 66
+gbmonctl -prop rgb-blue -val 35
 #+end_src
 
-I don't recommend using values that are out of the ranges listed, and this
-program doesn't check, so I'm not liable for monitor damage that occurs from
-this.
+When using propNum, I don't recommend using values that are out of the ranges
+listed, and this program doesn't check, so I'm not liable for monitor damage
+that occurs from this.
 
 * TODO
 - Get the rest of the commands
 - Make more user friendly
-- validate ranges
-
-
-install usbhid
-
