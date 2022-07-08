@@ -20,6 +20,29 @@ libhidapi-dev libudev-dev~, and on darwin you can use ~brew install hidapi~
 go install github.com/kelvie/gbmonctl@latest
 #+end_src
 
+** Mac specific steps:
+On Mac, you might run into an error like this when running the above command:
+
+#+begin_src sh
+# github.com/sstallion/go-hid
+/Users/dport/go/pkg/mod/github.com/sstallion/go-hid@v0.0.0-20190621001400-1cf4630be9f4/hid.go:38:10: fatal error: 'hidapi/hidapi.h' file not found
+#include <hidapi/hidapi.h>
+         ^~~~~~~~~~~~~~~~~
+1 error generated.
+#+end_src
+
+This means ~go~ cannot find the headers / library for ~hidapi~. To fix this, tell ~go~ where to find them. First, figure out where ~hidapi~ is:
+#+begin_src sh
+$ brew info hidapi | grep files
+/opt/homebrew/Cellar/hidapi/0.12.0 (19 files, 185KB) *
+#+end_src
+
+Now try to install ~gbmonctl~ like this:
+
+#+begin_src sh
+CGO_CFLAGS='-I/opt/homebrew/Cellar/hidapi/0.12.0/include' CGO_LDFLAGS='-L/opt/homebrew/Cellar/hidapi/0.12.0/lib' go install github.com/kelvie/gbmonctl@latest
+#+end_src
+
 * To use:
 
 #+begin_example
