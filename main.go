@@ -49,6 +49,13 @@ func main() {
 			Value: 0x87,
 		},
 		{
+			Name: "volume",
+			Min: 0,
+			Max: 100,
+			Value: 0x62,
+
+		},
+		{
 			Name:        "low-blue-light",
 			Description: "Blue light reduction. 0 means no reduction.",
 			Min:         0,
