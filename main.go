@@ -98,6 +98,13 @@ func main() {
 			Value:       0xe037,
 		},
 		{
+			Name:        "refresh",
+			Description: "0 is off, 1 shows refresh rate on screen",
+			Min:         0,
+			Max:         1,
+			Value:       0xe022,
+		},
+		{
 			Name:        "rgb-red",
 			Description: "Red value -- only works if colour-mode is set to 3",
 			Min:         0,
