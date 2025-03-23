@@ -77,6 +77,20 @@ func main() {
 			Value:       0xe003,
 		},
 		{
+			Name:        "count",
+			Description: "Set counter to specific value",
+			Min:         0,
+			Max:         99,
+			Value:       0xe02a,
+		},
+		{
+			Name:        "counter",
+			Description: "1 to show gaming counter on screen, 0 to hide it",
+			Min:         0,
+			Max:         1,
+			Value:       0xe028,
+		},
+		{
 			Name:        "crosshair",
 			Description: "0 is off, 1-4 switches between crosshairs",
 			Min:         0,
