@@ -77,6 +77,13 @@ func main() {
 			Value:       0xe003,
 		},
 		{
+			Name:        "crosshair",
+			Description: "0 is off, 1-4 switches between crosshairs",
+			Min:         0,
+			Max:         4,
+			Value:       0xe037,
+		},
+		{
 			Name:        "rgb-red",
 			Description: "Red value -- only works if colour-mode is set to 3",
 			Min:         0,
