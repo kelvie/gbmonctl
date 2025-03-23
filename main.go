@@ -104,6 +104,20 @@ func main() {
 			Max:         100,
 			Value:       0xe006,
 		},
+		{
+			Name:        "timer",
+			Description: "0 is off, 1 is start or reset",
+			Min:         0,
+			Max:         1,
+			Value:       0xe023,
+		},
+		{
+			Name:        "timer-pause",
+			Description: "0 is pause, 1 resume",
+			Min:         0,
+			Max:         1,
+			Value:       0xe027,
+		},
 	}
 
 	propMap := make(map[string]Property)
