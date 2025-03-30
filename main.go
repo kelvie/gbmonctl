@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"encoding/hex"
 	"flag"
 	"fmt"
@@ -23,8 +24,8 @@ func checksum(msg []byte) byte {
 type Property struct {
 	Name        string
 	Description string
-	Min         byte
-	Max         byte
+	Min         uint16
+	Max         uint16
 	Value       uint16
 }
 
@@ -205,12 +206,18 @@ func main() {
 	var preamble []byte
 	msg := []byte{}
 
+	var err error
 	if prop16 > 0xff {
-		msg = append(msg, byte(prop16>>8))
-		prop16 &= 0xff
+		msg, err = binary.Append(msg, binary.BigEndian, prop16)
+	} else {
+		msg, err = binary.Append(msg, binary.BigEndian, byte(prop16))
 	}
 
-	msg = append(msg, []byte{byte(prop16), 0, byte(*val)}...)
+	if err != nil {
+		errExit(err.Error())
+	}
+
+	msg, err = binary.Append(msg, binary.BigEndian, uint16(*val))
 
 	// TODO: 0x01 is read, 0x03 is write
 	preamble = []byte{0x51, byte(0x81 + len(msg)), 0x03}
@@ -222,7 +229,7 @@ func main() {
 		return
 	}
 
-	err := hid.Init()
+	err = hid.Init()
 
 	if err != nil {
 		log.Fatal(err)
