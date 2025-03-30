@@ -134,6 +134,13 @@ func main() {
 			Value:       0xe023,
 		},
 		{
+			Name:        "timer-location",
+			Description: "1st byte can be 0 (left) or 1 (right), 2nd -- 0 (top), 1 (center) or 2 (bottom)",
+			Min:         0x0000,
+			Max:         0x0102,
+			Value:       0xe02b,
+		},
+		{
 			Name:        "timer-pause",
 			Description: "0 is pause, 1 resume",
 			Min:         0,
