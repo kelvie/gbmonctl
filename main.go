@@ -128,9 +128,9 @@ func main() {
 		},
 		{
 			Name:        "timer",
-			Description: "0 is off, 1 is start or reset",
+			Description: "0 is off, 1 starts the timer, 2 starts countdown",
 			Min:         0,
-			Max:         1,
+			Max:         2,
 			Value:       0xe023,
 		},
 		{
@@ -146,6 +146,13 @@ func main() {
 			Min:         0,
 			Max:         1,
 			Value:       0xe027,
+		},
+		{
+			Name:        "timer-set",
+			Description: "First byte - minutes, 2nd byte - seconds",
+			Min:         0,
+			Max:         0x633c,
+			Value:       0xe026,
 		},
 	}
 
