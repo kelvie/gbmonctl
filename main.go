@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"encoding/hex"
 	"flag"
 	"fmt"
@@ -23,8 +24,8 @@ func checksum(msg []byte) byte {
 type Property struct {
 	Name        string
 	Description string
-	Min         byte
-	Max         byte
+	Min         uint16
+	Max         uint16
 	Value       uint16
 }
 
@@ -77,6 +78,34 @@ func main() {
 			Value:       0xe003,
 		},
 		{
+			Name:        "count",
+			Description: "Set counter to specific value",
+			Min:         0,
+			Max:         99,
+			Value:       0xe02a,
+		},
+		{
+			Name:        "counter",
+			Description: "1 to show gaming counter on screen, 0 to hide it",
+			Min:         0,
+			Max:         1,
+			Value:       0xe028,
+		},
+		{
+			Name:        "crosshair",
+			Description: "0 is off, 1-4 switches between crosshairs",
+			Min:         0,
+			Max:         4,
+			Value:       0xe037,
+		},
+		{
+			Name:        "refresh",
+			Description: "0 is off, 1 shows refresh rate on screen",
+			Min:         0,
+			Max:         1,
+			Value:       0xe022,
+		},
+		{
 			Name:        "rgb-red",
 			Description: "Red value -- only works if colour-mode is set to 3",
 			Min:         0,
@@ -96,6 +125,34 @@ func main() {
 			Min:         0,
 			Max:         100,
 			Value:       0xe006,
+		},
+		{
+			Name:        "timer",
+			Description: "0 is off, 1 starts the timer, 2 starts countdown",
+			Min:         0,
+			Max:         2,
+			Value:       0xe023,
+		},
+		{
+			Name:        "timer-location",
+			Description: "1st byte can be 0 (left) or 1 (right), 2nd -- 0 (top), 1 (center) or 2 (bottom)",
+			Min:         0x0000,
+			Max:         0x0102,
+			Value:       0xe02b,
+		},
+		{
+			Name:        "timer-pause",
+			Description: "0 is pause, 1 resume",
+			Min:         0,
+			Max:         1,
+			Value:       0xe027,
+		},
+		{
+			Name:        "timer-set",
+			Description: "First byte - minutes, 2nd byte - seconds",
+			Min:         0,
+			Max:         0x633c,
+			Value:       0xe026,
 		},
 	}
 
@@ -163,12 +220,18 @@ func main() {
 	var preamble []byte
 	msg := []byte{}
 
+	var err error
 	if prop16 > 0xff {
-		msg = append(msg, byte(prop16>>8))
-		prop16 &= 0xff
+		msg, err = binary.Append(msg, binary.BigEndian, prop16)
+	} else {
+		msg, err = binary.Append(msg, binary.BigEndian, byte(prop16))
 	}
 
-	msg = append(msg, []byte{byte(prop16), 0, byte(*val)}...)
+	if err != nil {
+		errExit(err.Error())
+	}
+
+	msg, err = binary.Append(msg, binary.BigEndian, uint16(*val))
 
 	// TODO: 0x01 is read, 0x03 is write
 	preamble = []byte{0x51, byte(0x81 + len(msg)), 0x03}
@@ -180,7 +243,7 @@ func main() {
 		return
 	}
 
-	err := hid.Init()
+	err = hid.Init()
 
 	if err != nil {
 		log.Fatal(err)
