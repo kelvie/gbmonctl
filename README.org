@@ -6,6 +6,11 @@ A CLI tool to change monitor settings over USB to the Gigabyte M32U
 
 * Supported monitors
 - Gigabyte M32U
+- Gigabyte M32Q
+- Gigabyte M32QC
+- Gigabyte M28UC
+- Gigabyte M27Q
+
 
 In theory any Gigabyte Monitor that uses a Realtek HID device (presumably the
 M28U also uses this) to control it over OSD sidekick *should* have the same
@@ -14,7 +19,7 @@ protocol, but this is the only one I own.
 * To install:
 
 You'll need libhidapi and libudev -- on Debians that's ~apt install
-libhidapi-dev libudev-dev~, and on darwin you can use ~brew install hidapi~
+libhidapi-dev libudev-dev~, and on darwin you can use ~brew install hidapi~.
 
 #+begin_src sh
 go install github.com/kelvie/gbmonctl@latest
