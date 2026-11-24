@@ -64,6 +64,13 @@ func main() {
 			Value:       0xe00b,
 		},
 		{
+			Name:        "input-source",
+			Description: "Standard DDC/CI input select (VCP 0x60), e.g. 0x0f DP1, 0x11 HDMI1, 0x12 HDMI2, 0x1b USB-C",
+			Min:         0,
+			Max:         0xff,
+			Value:       0x60,
+		},
+		{
 			Name:  "kvm-switch",
 			Description: "Switch KVM to device 0 or 1",
 			Min:   0,
@@ -171,6 +178,7 @@ func main() {
 	propNum := flag.Uint("propNum", 0, "Property number to set instead of -prop")
 	val := flag.Int("val", -1, "Value to set property to")
 	dryrun := flag.Bool("n", false, "Dry run: test commands and print instead")
+	get := flag.String("get", "", "Property to read (a name from the list above, or a raw VCP code like 0x60).\nPrints only the current value. Use \"all\" for a table of every property")
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	flag.Parse()
@@ -181,10 +189,25 @@ func main() {
 		os.Exit(1)
 	}
 
+	if *get == "all" {
+		getAll(properties)
+		return
+	}
+
+	if *get != "" {
+		code, err := parseCode(*get, propMap)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
+			os.Exit(1)
+		}
+		getValue(code, *dryrun)
+		return
+	}
+
 	if *prop == "" && *propNum == 0 {
 		// TODO: launch a repl or gui with tab completion instead here, or
 		// something like fish_config
-		errExit("-prop or -propNum is required")
+		errExit("-get, -prop or -propNum is required")
 	}
 
 	if *val == -1 {
@@ -233,7 +256,7 @@ func main() {
 
 	msg, err = binary.Append(msg, binary.BigEndian, uint16(*val))
 
-	// TODO: 0x01 is read, 0x03 is write
+	// 0x03 is DDC/CI Set VCP Feature (0x01 is Get, see get.go)
 	preamble = []byte{0x51, byte(0x81 + len(msg)), 0x03}
 
 	copy(buf[1+0x40:], append(preamble, msg...))
@@ -254,9 +277,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// TODO: get current value and nicely transition to the expected value like in
-	// TODO: read a value if "v" not specified, I think the value is in the byte
-	// 0xa of the response if we do a read
+	// TODO: use readVCP to get the current value and nicely transition to the
+	// expected value
 	_, err = dev.Write(buf)
 	if err != nil {
 		log.Fatal(err)
