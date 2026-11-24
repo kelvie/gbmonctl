@@ -18,43 +18,23 @@ protocol, but this is the only one I own.
 
 * To install:
 
-You'll need libhidapi and libudev -- on Debians that's ~apt install
-libhidapi-dev libudev-dev~, and on darwin you can use ~brew install hidapi~.
+hidapi is bundled with the Go HID library, so no separate install is needed.
+On Linux you need the libudev headers (~apt install libudev-dev~ on Debians).
 
 #+begin_src sh
 go install github.com/kelvie/gbmonctl@latest
-#+end_src
-
-** Mac specific steps:
-On Mac, you might run into an error like this when running the above command:
-
-#+begin_src sh
-# github.com/sstallion/go-hid
-/Users/dport/go/pkg/mod/github.com/sstallion/go-hid@v0.0.0-20190621001400-1cf4630be9f4/hid.go:38:10: fatal error: 'hidapi/hidapi.h' file not found
-#include <hidapi/hidapi.h>
-         ^~~~~~~~~~~~~~~~~
-1 error generated.
-#+end_src
-
-This means ~go~ cannot find the headers / library for ~hidapi~. To fix this, tell ~go~ where to find them. First, figure out where ~hidapi~ is:
-#+begin_src sh
-$ brew info hidapi | grep files
-/opt/homebrew/Cellar/hidapi/0.12.0 (19 files, 185KB) *
-#+end_src
-
-Now try to install ~gbmonctl~ like this:
-
-#+begin_src sh
-CGO_CFLAGS='-I/opt/homebrew/Cellar/hidapi/0.12.0/include' CGO_LDFLAGS='-L/opt/homebrew/Cellar/hidapi/0.12.0/lib' go install github.com/kelvie/gbmonctl@latest
 #+end_src
 
 * To use:
 
 #+begin_example
 ~ ~/go/bin/gbmonctl
-ERROR: -prop or -propNum is required
+ERROR: -get, -prop or -propNum is required
 
 Usage of gbmonctl:
+  -get string
+        Property to read (a name from the list above, or a raw VCP code like 0x60).
+        Prints only the current value. Use "all" for a table of every property
   -n    Dry run: test commands and print instead
   -prop string
         Property to set. Available properties:
@@ -63,6 +43,8 @@ Usage of gbmonctl:
                 sharpness (0-10)
                 low-blue-light (0-10)
                         Blue light reduction. 0 means no reduction.
+                input-source (0-255)
+                        Standard DDC/CI input select (VCP 0x60), e.g. 0x0f DP1, 0x11 HDMI1, 0x12 HDMI2, 0x1b USB-C
                 kvm-switch (0-1)
                         Switch KVM to device 0 or 1
                 colour-mode (0-3)
@@ -86,10 +68,10 @@ Examples:
 gbmonctl -prop brightness -val 50
 
 # Set contrast to 50
-gbmonctl -prop contrast -v 50
+gbmonctl -prop contrast -val 50
 
 # Set sharpness to 5
-gbmonctl -prop sharpness -v 5
+gbmonctl -prop sharpness -val 5
 
 # Set colour temperature to 2700K for nighttime
 gbmonctl -prop colour-mode -val 3
@@ -102,10 +84,40 @@ When using propNum, I don't recommend using values that are out of the ranges
 listed, and this program doesn't check, so I'm not liable for monitor damage
 that occurs from this.
 
+** Reading values
+
+~-get~ prints only the current value, so it can be used in scripts:
+
+#+begin_src sh
+gbmonctl -get brightness     # => 28
+gbmonctl -get 0x60           # raw VCP codes work too
+gbmonctl -get all            # table of every property and its maximum
+#+end_src
+
+Some properties (~count~, ~timer-set~) can be set but not read; ~-get~ exits
+with an error for those.
+
+** Switching between two computers
+
+If ~-prop kvm-switch~ switches away but not back, toggle the video input
+instead. Read ~-get input-source~ on each computer to find its value, then:
+
+#+begin_src sh
+v=$(gbmonctl -get input-source) && if [ "$v" = "17" ]; then n=15; else n=17; fi && gbmonctl -prop input-source -val "$n"
+#+end_src
+
+The monitor's USB hub (which includes the control device) follows the KVM, so
+the command can only be run from the computer the KVM currently points at --
+or connect both of the monitor's USB upstream ports to the same computer.
+
 * Other notes
 ~fwupd~ seems to delete the hidraw device that this uses, so you will have to
 disable fwupd and re-plug in your monitor (hit the KVM switch on the side), see
 https://github.com/kelvie/gbmonctl/issues/1
+
+* Credits
+The read protocol (the ~40 d6~ read request and GetInputReport) comes from
+[[https://github.com/rimexe0/megabyte][rimexe0/megabyte]]'s reverse engineering of the M28U.
 
 * TO-DO
 - Get the rest of the commands
